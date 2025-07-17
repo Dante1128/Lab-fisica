@@ -1,0 +1,41 @@
+
+    body {
+      background: linear-gradient(135deg, #84fab0, #8fd3f4);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .menu-card {
+      background: white;
+      border-radius: 2rem;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+      padding: 3rem;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .menu-card h2 {
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: #333;
+    }
+
+    .menu-button {
+      padding: 1rem;
+      font-size: 1.2rem;
+      border-radius: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .menu-button:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu-icon {
+      margin-right: 10px;
+    }

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Laboratorio de Rozamiento - VR</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/styles/rozamiento.css" />
+</head>
+<body>
+  <div id="formulario">
+    <h3>Datos del laboratorio</h3>
+    <label>Masa del bloque (g):</label>
+    <input id="masaBloque" type="number" value="5" /><br />
+    <label>Masa colgante (g):</label>
+    <input id="masaColgante" type="number" value="8" /><br />
+    <label>Ángulo del plano (°):</label>
+    <input id="angulo" type="number" value="45" /><br />
+    <label>Coeficiente de rozamiento:</label>
+    <input id="coefRozamiento" type="number" step="0.01" value="0.2" /><br />
+    <button onclick="iniciarSimulacion()">Simular</button>
+    <div id="resultados" style="margin-top:10px; font-family: Arial, sans-serif; font-size: 14px;"></div>
+  </div>
+ <!-- Contenedor para el gráfico --> 
+  <div id="grafico" style="position: fixed; bottom: 10px; left: 10px; background: white; padding: 10px; border-radius: 6px; z-index: 10;">
+  <canvas id="miGrafico" width="400" height="200"></canvas>
+</div>
+<!--assets-->
+  <a-assets><a-asset-item id="modeloPuerta" src="/assets/modelos/puerta.glb"></a-asset-item></a-assets>
+  <a-assets><a-asset-item id="modeloPuerta" src="assets/modelos/puerta.glb"></a-asset-item></a-assets>
+  <a-asset-item id="modelo-docente" src="/assets/modelos/inge.glb"></a-asset-item>
+  <a-assets><img id="texturaSuelo" src="/assets/imagenes/piso2.jpg" /></a-assets>
+  <a-assets><a-asset-item id="modeloMesa" src="/assets/modelos/mesa.glb"></a-asset-item></a-assets>
+  <a-assets><a-asset-item id="modeloSilla" src="/assets/modelos/silla.glb"></a-asset-item></a-assets>
+  <a-assets><a-asset-item id="modeloVentana" src="/assets/modelos/ventana.glb"></a-asset-item></a-assets>
+  <a-assets><a-asset-item id="modeloEstante" src="/assets/modelos/estante.glb"></a-asset-item></a-assets>
+  <a-assets><a-asset-item id="modeloSoportemru" src="/assets/modelos/soportemru.glb"></a-asset-item></a-assets>
+
+  
+
+
+
+
+<!-- PAREDES -->   
+<a-scene embedded vr-mode-ui="enabled: false">
+    <a-box position="0 2.492 -17.362" width="15" height="5" depth="0.1" color="#7F8C8D" scale="2.307 1.000 2.140"></a-box>
+    <a-box position="0 2.492 17.311" width="15" height="5" depth="0.1" color="#7F8C8D" scale="2.307 1.000 2.140"></a-box>
+    <a-box position="-17.172 2.543 -0.047" rotation="0 -89.854 0" width="15" height="5" depth="0.1" color="#7F8C8D" scale="2.307 1.000 2.140"></a-box>
+    <a-box position="17.172 2.543 -0.047" rotation="0 -89.854 0" width="15" height="5" depth="0.1" color="#7F8C8D" scale="2.307 1.000 2.140"></a-box>
+    <a-entity gltf-model="#modeloPuerta" position="-14.739 2.013 17.200" scale="2.307 1.974 2.140" rotation="0 0 0"></a-entity>
+    <a-entity gltf-model="#modeloPuerta" position="-12.402 2.013 17.200" scale="2.307 1.974 2.140" rotation="0 0 0"></a-entity>
+<!--Pizarra-->
+    <a-entity id="pizarron" position="-4.837 1.795 16.554" rotation="5.096 172.793 4.079" scale="1 1 1">
+      <a-plane width="3" height="2" color="#fff" position="0.749 0.723 -0.698" rotation="-5.344 6.997 -4.922" scale="3.126 1.929 1"></a-plane>
+      <a-text id="pizarron-titulo" value="Resultados del Experimento" color="#000" position="-2.207 2.259 -0.329" rotation="0.995 4.355 -5.146" align="center" width="5"></a-text>
+      <a-text id="linea1" value="Masa carrito 1: -- kg" color="#000" position="-2.2 2.0 -0.329" align="left" width="4" rotation="0.995 4.355 -5.146"></a-text>
+      <a-text id="linea2" value="Masa carrito 2: -- kg" color="#000" position="-2.2 1.8 -0.329" align="left" width="4" rotation="0.995 4.355 -5.146"></a-text>
+      <a-text id="linea3" value="Velocidad inicial: -- m/s" color="#000" position="-2.2 1.6 -0.329" align="left" width="4" rotation="0.995 4.355 -5.146"></a-text>
+      <a-text id="linea4" value="Velocidad final: -- m/s" color="#000" position="-2.2 1.4 -0.329" align="left" width="4" rotation="0.995 4.355 -5.146"></a-text>
+      <a-text id="linea5" value="Tiempo estimado: -- s" color="#000" position="-2.2 1.2 -0.329" align="left" width="4" rotation="0.995 4.355 -5.146"></a-text>
+      <a-text id="linea6" value="Distancia: -- m" color="#000" position="-2.2 1.0 -0.329" align="left" width="4" rotation="0.995 4.355 -5.146"></a-text>
+      <a-text id="linea7" value="Ecuación: m1*v1 + m2*v2 = (m1+m2)*vf : -- (kg·m/s)" color="#000" position="-2.2 0.75 -0.329" align="left" width="4" rotation="0.995 4.355 -5.146"></a-text>
+    </a-entity>
+
+      <!-- AVATAR DOCENTE -->
+    <a-entity id="docente-avatar" gltf-model="#modelo-docente" scale="1.7 1.7 1.7" position="11.679 0.700 16.152" rotation="0 90 0"></a-entity>
+      <!-- PANEL DE DIÁLOGO -->
+    <a-entity id="panel-dialogo" position="13.873 2.907 17.136" rotation="0 180 0">
+        <a-plane width="2" height="1" color="#222" ></a-plane>
+        <a-text id="texto-dialogo" value="Hola, ¿en qué puedo ayudarte?" color="#FFF" width="1.8" align="center"></a-text>
+    </a-entity> 
+      <a-entity id="boton-docente" position="14.025 1.729 16.843" rotation="0 180 0" position="-8.797 0.695 -10.459">
+        <a-box width="1" height="0.3" depth="0.1" color="#00CFFF" ></a-box>
+        <a-text value="Hablar con el Ingeniero" align="center" color="white"  rotation="0 0 0" width="2"></a-text>
+      </a-entity>
+
+      <!-- PANEL DE PREGUNTAS -->
+      <a-entity id="panel-preguntas" position="13.873 2.907 17.136" rotation="0 270 0" visible="false">
+        <a-plane width="3" height="2" color="#ffffff" opacity="0.9"></a-plane>
+        <a-text value="Selecciona una pregunta:" position="0 0.7 0.01" align="center" width="2" color="#000"></a-text>
+        <a-entity id="opcion1" question-id="1" position="13.873 2.907 17.136">
+          <a-plane width="2.5" height="0.3" color="#EEE" opacity="0.8"></a-plane>
+          <a-text value="¿Que es un choque inelastico?" align="center" width="2.5" color="#000" position="0 0 0.01"></a-text>
+        </a-entity>
+        <a-entity id="opcion2" question-id="2" position="13.873 2.907 17.136">
+          <a-plane width="2.5" height="0.3" color="#EEE" opacity="0.8"></a-plane>
+          <a-text value="¿Como se calcula la velocidad final?" align="center" width="2.5" color="#000" position="0 0 0.01"></a-text>
+        </a-entity>
+        <a-entity id="opcion3" question-id="3" position="13.873 2.907 17.136">
+          <a-plane width="2.5" height="0.3" color="#EEE" opacity="0.8"></a-plane>
+          <a-text value="¿Por que no se conserva la energia?" align="center" width="2.5" color="#000" position="0 0 0.01"></a-text>
+        </a-entity>
+        <a-entity id="opcion4" question-id="4" position="13.873 2.907 17.136">
+          <a-plane width="2.5" height="0.3" color="#EEE" opacity="0.8"></a-plane>
+          <a-text value="¿Que representa la grafica?" align="center" width="2.5" color="#000" position="0 0 0.01"></a-text>
+        </a-entity>
+        <a-entity id="opcionSalir" question-id="exit" position="13.873 2.907 17.136">
+          <a-plane width="2.5" height="0.3" color="#DDD" opacity="0.8"></a-plane>
+          <a-text value="Esta bien, gracias Inge" align="center" width="2.5" color="#666" position="0 0 0.01"></a-text>
+        </a-entity>
+      </a-entity>
+      <!---piso-->
+      <a-plane src="#texturaSuelo" rotation="-90 0 0" width="50" height="50" repeat="20 20" material="repeat: 20 20" position="0 0 0" scale="0.700 0.700 0.700"></a-plane>
+      <!--mesas-->
+      <a-entity gltf-model="#modeloMesa" position="-8.690 0.662 7.177" scale="2.390 1.284 1.389"></a-entity>
+      <a-entity gltf-model="#modeloMesa" position="-8.694 0.522 -0.394" scale="2.390 1.284 1.389"></a-entity>
+      <a-entity gltf-model="#modeloMesa" position="-8.506 0.522 -7.003" scale="2.390 1.284 1.389"></a-entity>
+      <a-entity gltf-model="#modeloMesa" position="2.583 0.522 7.713" scale="2.390 1.284 1.389"></a-entity>
+      <a-entity gltf-model="#modeloMesa" position="2.700 0.522 -0.070" scale="2.390 1.284 1.389"></a-entity>
+      <a-entity gltf-model="#modeloMesa" position="2.786 0.522 -7.020" scale="2.390 1.284 1.389"></a-entity>
+      <!--sillas-->
+      <a-entity gltf-model="#modeloSilla" position="-8.690 0.864 4.848" scale="0.869 0.829 1.014"></a-entity>
+      <a-entity gltf-model="#modeloSilla" position="-8.694 0.522 -2.911" scale="0.869 0.829 1.014"></a-entity>
+      <a-entity gltf-model="#modeloSilla" position="-8.506 0.522 -9.244" scale="0.869 0.829 1.014"></a-entity>
+      <a-entity gltf-model="#modeloSilla" position="2.583 0.522 5.640" scale="0.869 0.829 1.014"></a-entity>
+      <a-entity gltf-model="#modeloSilla" position="2.700 0.522 -2.046" scale="0.869 0.829 1.014"></a-entity>
+      <a-entity gltf-model="#modeloSilla" position="2.786 0.522 -8.877" scale="0.869 0.829 1.014"></a-entity>
+      <!--ventana-->
+      <a-entity gltf-model="#modeloVentana" position="-11.416 1.967 -16.634" scale="3.437 1.000 1.000" rotation="0 0 0"></a-entity>
+      <a-entity gltf-model="#modeloVentana" position="-0.386 1.967 -16.634" scale="3.437 1.000 1.000" rotation="0 0 0"></a-entity>
+      <a-entity gltf-model="#modeloVentana" position="10.262 1.967 -16.634" scale="3.437 1.000 1.000" rotation="0 0 0"></a-entity>
+      <!--estante-->
+      <a-entity gltf-model="#modeloEstante" position="26.773 0.306 6.145" scale="0.500 0.150 0.500" rotation="-0.133 -89.630 -0.001"></a-entity>
+      <a-entity gltf-model="#modeloEstante" position="26.773 0.306 -1.177" scale="0.500 0.150 0.500" rotation="-0.133 -89.630 -0.001"></a-entity>
+      <a-entity gltf-model="#modeloEstante" position="26.773 0.306 -8.526" scale="0.500 0.150 0.500" rotation="-0.133 -89.630 -0.001"></a-entity>
+      <!--soporte maquinas de aire-->
+      <a-entity gltf-model="#modeloSoportemru" position="-8.694 1.582S -0.394" scale="0.860 1.974 2.140" rotation="0 0 0"></a-entity>
+      <a-entity gltf-model="#modeloSoportemru" position="-8.506 1.610 -7.003" scale="0.860 1.974 2.140" rotation="0 0 0"></a-entity>
+      <a-entity gltf-model="#modeloSoportemru" position="2.394 1.641 7.904" scale="0.860 1.974 2.140" rotation="0 0 0"></a-entity>
+      <a-entity gltf-model="#modeloSoportemru" position="2.700 1.616 -0.070" scale="0.860 1.974 2.140" rotation="0 0 0"></a-entity>
+      <a-entity gltf-model="#modeloSoportemru" position="2.786 1.586 -7.020" scale="0.860 1.974 2.140" rotation="0 0 0"></a-entity>
+      
+
+
+
+    
+
+<!--Ejercicio de laboratorio -->
+    <a-box
+      id="plano"
+      position="-0.5 0.3 0"
+      rotation="0 0 45"
+      depth="6"
+      height="0.2"
+      width="4"
+      color=""
+      src="#texturaPlano"
+    ></a-box>
+  
+    <a-assets>
+      <img id="texturaPlano" src="assets/aluminio.jpg" />
+    </a-assets> 
+
+    <!--Objetos de laboratorio-->
+    <a-box
+      id="objetoBloque"
+      position="-1.31 0 0"
+      rotation="0 0 45"
+      color=""
+      depth="0.5"
+      height="0.5"
+      width="0.9"
+      src="#texturaBloque"
+    ></a-box>
+    <a-assets>
+      <img id="texturaBloque" src="assets/madera.jpg" />
+    </a-assets>
+
+    <a-cylinder
+      id="polea"
+      position="1.5 2.5 0"
+      rotation="90 0 0"
+      radius="0.2"
+      height="0.05"
+      color="#2980B9"
+      src="#texturaPolea"
+    ></a-cylinder>
+    <a-assets>
+      <img id="texturaPolea" src="assets/metal3.jpeg" />
+    </a-assets>
+
+    <a-box
+      id="objetoColgante"
+      position="1.5 2 0"
+      color=""
+      depth="0.5"
+      height="0.5"
+      width="0.5"
+      src="#texturaColgante"
+    ></a-box>
+    <a-assets>
+      <img id="texturaColgante" src="assets/metal4.jpg" />
+    </a-assets>
+
+    <!-- Anclajes para cuerda -->
+    <a-sphere
+      id="anclajeBloque"
+      radius="0.05"
+      color="#AA0000"
+      position="-1.31 0.25 0"
+    ></a-sphere>
+    <a-sphere
+      id="anclajePolea"
+      radius="0.05"
+      color="#0000AA"
+      position="1.5 2.5 0"
+    ></a-sphere>
+      <a-assets>
+      <img id="texturaColgante" src="assets/metal4.jpg" />
+    </a-assets>
+    <a-sphere
+      id="anclajeColgante"
+      radius="0.05"
+      color="#00AA00"
+      position="1.5 2.25 0"
+      src="#anclajeColgante"
+    ></a-sphere>
+     <a-assets>
+      <img id="anclajeColgante" src="assets/metal4.jpg" />
+    </a-assets>
+
+    <a-entity
+      id="cuerdaPlano"
+      geometry="primitive: cylinder; radius: 0.01"
+      material="color: #000"
+      position="-0.025 1.329 0.006"
+      rotation = "0.000 0.000 -46.83"
+    ></a-entity>
+
+    <a-entity
+      id="cuerdaColgante"
+      geometry="primitive: cylinder; radius: 0.01"
+      material="color: #000"
+      position="1.505 2.166 0.004"
+    ></a-entity>
+
+    
+
+
+    <a-entity camera look-controls wasd-controls position="0 1.6 5"></a-entity>
+
+    <a-light type="directional" position="2 4 4" intensity="1"></a-light>
+    <a-light type="ambient" color="#BBB"></a-light>
+  </a-scene>
+  <script src="/scripts/rozamiento.js"></script>
+</body>
+</html>
